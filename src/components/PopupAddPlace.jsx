@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { PopupWithForm } from './PopupWithForm';
 
-export const PopupAddPlace = ({ isOpen, onClose }) => {
+export const PopupAddPlace = ({ isOpen, onClose, onAddPlace }) => {
+  // Управляемые компоненты формы
+  const [name, setName] = useState(null);
+  const [link, setLink] = useState(null);
+
+  const handleNameChange = (event) => {
+    const updatedName = event.target.value;
+    setName(updatedName);
+  };
+
+  const handleLinkChange = (event) => {
+    const updatedLink = event.target.value;
+    setLink(updatedLink);
+  };
+
+  const handleSubmit = () => {
+    onAddPlace({ name, link });
+  };
+
   return (
-    <PopupWithForm formTitle="Новое место" formName="card" buttonText="Создать" isOpen={isOpen} onClose={onClose}>
+    <PopupWithForm formTitle="Новое место" formName="card" buttonText="Создать" isOpen={isOpen} onClose={onClose} onSubmit={handleSubmit}>
       <label className="form__field">
         <input
           required
@@ -13,7 +31,9 @@ export const PopupAddPlace = ({ isOpen, onClose }) => {
           className="form__input"
           placeholder="Название"
           minLength="2"
-          maxLength="30" />
+          maxLength="30"
+          value={name || ''}
+          onChange={handleNameChange} />
         <span className="form__input-error place-input-error"></span>
       </label>
       <label className="form__field">
@@ -23,7 +43,9 @@ export const PopupAddPlace = ({ isOpen, onClose }) => {
           name="link"
           type="url"
           className="form__input"
-          placeholder="Ссылка на картинку" />
+          placeholder="Ссылка на картинку"
+          value={link || ''}
+          onChange={handleLinkChange} />
         <span className="form__input-error link-input-error"></span>
       </label>
     </PopupWithForm>

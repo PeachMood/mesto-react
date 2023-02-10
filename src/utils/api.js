@@ -57,6 +57,10 @@ class Api {
   deleteLike(cardId) {
     return this._sendRequest(`cards/${cardId}/likes`, { method: 'DELETE' });
   }
+
+  toggleLike(cardId, isLiked) {
+    return isLiked ? this.deleteLike(cardId) : this.addLike(cardId);
+  }
 }
 
 export const api = new Api({

@@ -1,19 +1,41 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
-export const Card = ({ card, onCardClick }) => {
-  const handleCardClick = () => onCardClick(card);
+import { CurrentUserContext } from '../contexts/CurrentUserContext';
+
+export const Card = ({ card, onCardClick, onCardLike, onCardDelete }) => {
+  // Глобальный контекст
+  const currentUser = useContext(CurrentUserContext);
+
+  // Свойства карточки
+  const isOwn = card.owner._id === currentUser._id;
+  const isLiked = card.likes.some(user => user._id === currentUser._id);
+
+  // Стили кнопки лайка
+  const buttonLikeClassName = `card__like ${isLiked && 'card__like_active'} button`;
+
+  const handleCardClick = () => {
+    onCardClick(card);
+  };
+
+  const handleCardDelete = () => {
+    onCardDelete(card);
+  };
+
+  const handleLikeClick = () => {
+    onCardLike(card);
+  };
 
   return (
     <li className="card__element">
       <figure className="card">
-        <button className="card__delete button" type="button" aria-label="Удалить карточку"></button>
+        {isOwn && <button className="card__delete button" type="button" aria-label="Удалить карточку" onClick={handleCardDelete} />}
         <div className="card__square">
           <img className="card__image" src={card?.link} alt={card?.name} onClick={handleCardClick} />
         </div>
         <figcaption className="card__caption">
           <h2 className="card__text">{card?.name}</h2>
           <div className="card__wrapper">
-            <button className="card__like button" type="button" aria-label="Поставить лайк"></button>
+            <button className={buttonLikeClassName} type="button" aria-label="Поставить лайк" onClick={handleLikeClick} />
             <span className="card__counter">{card?.likes.length}</span>
           </div>
         </figcaption>
