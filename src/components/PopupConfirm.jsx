@@ -2,8 +2,18 @@ import React from 'react';
 
 import { PopupWithForm } from './PopupWithForm';
 
-export const PopupConfirm = ({ isOpen, onClose }) => {
+export const PopupConfirm = ({ card, isLoading, onClose, onConfirm }) => {
+  const handleSumbit = () => {
+    onConfirm(card);
+  };
+
   return (
-    <PopupWithForm formTitle="Вы уверены?" formName="confirm" buttonText="Да" isOpen={isOpen} onClose={onClose} />
+    <PopupWithForm
+      formTitle="Вы уверены?"
+      formName="confirm"
+      buttonText={isLoading ? "Удаление..." : "Да"}
+      isOpen={card}
+      onClose={onClose}
+      onSubmit={handleSumbit} />
   );
 };

@@ -30,21 +30,18 @@ export const App = () => {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [trashedCard, setTrashedCard] = useState(null);
 
   const handleEditAvatarClick = () => {
     setIsEditAvatarPopupOpen(true);
   };
 
   const handleEditProfileClick = () => {
-    setIsEditProfilePopupOpen(true)
+    setIsEditProfilePopupOpen(true);
   };
 
   const handleAddPlaceClick = () => {
-    setIsAddPlacePopupOpen(true)
-  };
-
-  const handleCardClick = (card) => {
-    setSelectedCard(card)
+    setIsAddPlacePopupOpen(true);
   };
 
   const handleClosePopups = () => {
@@ -52,6 +49,7 @@ export const App = () => {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setSelectedCard(null);
+    setTrashedCard(null);
   };
 
   // Функции для обработки действий над карточками
@@ -65,44 +63,66 @@ export const App = () => {
       .catch(error => console.log(error));
   };
 
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
+  };
+
   const handleCardDelete = (card) => {
+    setTrashedCard(card);
+  };
+
+  // Состояния и функции для обработки submit'ов форм
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
+  const [isAddingPlace, setIsAddingPlace] = useState(false);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
+
+  const handleUpdateProfile = (profile) => {
+    setIsUpdatingProfile(true);
+    api.editUserInfo(profile)
+      .then(updatedUser => {
+        setCurrentUser(updatedUser);
+        setIsEditProfilePopupOpen(false);
+      })
+      .catch(error => console.log(error))
+      .finally(() => setIsUpdatingProfile(false));
+  };
+
+  const handleUpdateAvatar = (avatar) => {
+    setIsUpdatingAvatar(true);
+    api.editUserAvatar(avatar)
+      .then(updatedUser => {
+        setCurrentUser(updatedUser);
+        setIsEditAvatarPopupOpen(false);
+      })
+      .catch(error => console.log(error))
+      .finally(() => setIsUpdatingAvatar(false));
+  };
+
+  const handleAddPlace = (card) => {
+    setIsAddingPlace(true);
+    api.addCard(card)
+      .then(addedCard => {
+        setCards([addedCard, ...cards]);
+        setIsAddPlacePopupOpen(false);
+      })
+      .catch(error => console.log(error))
+      .finally(() => setIsAddingPlace(false));
+  };
+
+  const handleConfirmClick = (card) => {
+    setIsDeletingCard(true);
     const isOwn = card.owner._id === currentUser._id;
     if (isOwn) {
       api.deleteCard(card._id)
         .then(() => {
           const updatedCards = cards.filter(other => card._id !== other._id);
           setCards(updatedCards);
+          setTrashedCard(null);
         })
-        .catch(error => console.log(error));
+        .catch(error => console.log(error))
+        .finally(() => setIsDeletingCard(false));
     }
-  }
-
-  // Функции для обработки submit'ов форм
-  const handleUpdateProfile = (profile) => {
-    api.editUserInfo(profile)
-      .then(user => {
-        setCurrentUser(user);
-        setIsEditProfilePopupOpen(false);
-      })
-      .catch(error => console.log(error));
-  };
-
-  const handleUpdateAvatar = (avatar) => {
-    api.editUserAvatar(avatar)
-      .then(user => {
-        setCurrentUser(user);
-        setIsEditAvatarPopupOpen(false);
-      })
-      .catch(error => console.log(error));
-  };
-
-  const handleAddPlace = (card) => {
-    api.addCard(card)
-      .then(addedCard => {
-        setCards([addedCard, ...cards]);
-        setIsAddPlacePopupOpen(false);
-      })
-      .catch(error => console.log(error));
   };
 
   return (
@@ -119,17 +139,24 @@ export const App = () => {
             onCardLike={handleCardLike}
             onCardDelete={handleCardDelete} />
           <Footer />
-          <PopupConfirm />
+          <PopupConfirm
+            card={trashedCard}
+            isLoading={isDeletingCard}
+            onClose={handleClosePopups}
+            onConfirm={handleConfirmClick} />
           <PopupEditAvatar
             isOpen={isEditAvatarPopupOpen}
+            isLoading={isUpdatingAvatar}
             onClose={handleClosePopups}
             onUpdateAvatar={handleUpdateAvatar} />
           <PopupEditProfile
             isOpen={isEditProfilePopupOpen}
+            isLoading={isUpdatingProfile}
             onClose={handleClosePopups}
             onUpdateUser={handleUpdateProfile} />
           <PopupAddPlace
             isOpen={isAddPlacePopupOpen}
+            isLoading={isAddingPlace}
             onClose={handleClosePopups}
             onAddPlace={handleAddPlace} />
           <ImagePopup card={selectedCard} onClose={handleClosePopups} />

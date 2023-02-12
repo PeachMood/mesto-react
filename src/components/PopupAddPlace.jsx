@@ -1,28 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { PopupWithForm } from './PopupWithForm';
 
-export const PopupAddPlace = ({ isOpen, onClose, onAddPlace }) => {
+export const PopupAddPlace = ({ isOpen, isLoading, onClose, onAddPlace }) => {
   // Управляемые компоненты формы
   const [name, setName] = useState(null);
   const [link, setLink] = useState(null);
 
   const handleNameChange = (event) => {
-    const updatedName = event.target.value;
-    setName(updatedName);
+    setName(event.target.value);
   };
 
   const handleLinkChange = (event) => {
-    const updatedLink = event.target.value;
-    setLink(updatedLink);
+    setLink(event.target.value);
   };
 
   const handleSubmit = () => {
     onAddPlace({ name, link });
   };
 
+  useEffect(() => {
+    if (!isOpen) {
+      setName(null);
+      setLink(null);
+    }
+  }, [isOpen]);
+
   return (
-    <PopupWithForm formTitle="Новое место" formName="card" buttonText="Создать" isOpen={isOpen} onClose={onClose} onSubmit={handleSubmit}>
+    <PopupWithForm
+      formTitle="Новое место"
+      formName="card"
+      buttonText={isLoading ? "Создание..." : "Создать"}
+      isOpen={isOpen}
+      onClose={onClose}
+      onSubmit={handleSubmit}>
       <label className="form__field">
         <input
           required

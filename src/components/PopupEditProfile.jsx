@@ -3,13 +3,15 @@ import React, { useContext, useState, useEffect } from 'react';
 import { PopupWithForm } from './PopupWithForm';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
-export const PopupEditProfile = ({ isOpen, onClose, onUpdateUser }) => {
-  // Глобальное контекст
+export const PopupEditProfile = ({ isOpen, isLoading, onClose, onUpdateUser }) => {
+  // Глобальный контекст
   const currentUser = useContext(CurrentUserContext);
   useEffect(() => {
-    setName(currentUser?.name);
-    setAbout(currentUser?.about);
-  }, [currentUser]);
+    if (!isOpen) {
+      setName(currentUser?.name);
+      setAbout(currentUser?.about);
+    }
+  }, [isOpen, currentUser]);
 
   // Управляемые компоненты формы
   const [name, setName] = useState(null);
@@ -31,7 +33,7 @@ export const PopupEditProfile = ({ isOpen, onClose, onUpdateUser }) => {
     <PopupWithForm
       formTitle="Редактировать профиль"
       formName="profile"
-      buttonText="Сохранить"
+      buttonText={isLoading ? "Сохранение..." : "Сохранить"}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}>

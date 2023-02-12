@@ -1,19 +1,25 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { PopupWithForm } from './PopupWithForm';
 
-export const PopupEditAvatar = ({ isOpen, onClose, onUpdateAvatar }) => {
+export const PopupEditAvatar = ({ isOpen, isLoading, onClose, onUpdateAvatar }) => {
   const avatar = useRef(null);
 
   const handleSubmit = () => {
     onUpdateAvatar({ avatar: avatar.current.value })
   };
 
+  useEffect(() => {
+    if (!isOpen) {
+      avatar.current.value = null;
+    }
+  }, [isOpen]);
+
   return (
     <PopupWithForm
       formTitle="Обновить аватар"
       formName="avatar"
-      buttonText="Сохранить"
+      buttonText={isLoading ? "Сохранение..." : "Сохранить"}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}>
