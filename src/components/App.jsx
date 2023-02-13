@@ -12,9 +12,15 @@ import { ImagePopup } from './ImagePopup';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
 export const App = () => {
-  // Глобальные состояния с данными о пользователями и карточками
   const [currentUser, setCurrentUser] = useState(null);
   const [cards, setCards] = useState([]);
+
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [trashedCard, setTrashedCard] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
@@ -24,13 +30,6 @@ export const App = () => {
       })
       .catch(error => console.log(error));
   }, []);
-
-  // Состояния для отображения попапов
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [trashedCard, setTrashedCard] = useState(null);
 
   const handleEditAvatarClick = () => {
     setIsEditAvatarPopupOpen(true);
@@ -52,7 +51,6 @@ export const App = () => {
     setTrashedCard(null);
   };
 
-  // Функции для обработки действий над карточками
   const handleCardLike = (card) => {
     const isLiked = card.likes.some(user => user._id === currentUser._id);
     api.toggleLike(card._id, isLiked)
@@ -71,47 +69,41 @@ export const App = () => {
     setTrashedCard(card);
   };
 
-  // Состояния и функции для обработки submit'ов форм
-  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-  const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
-  const [isAddingPlace, setIsAddingPlace] = useState(false);
-  const [isDeletingCard, setIsDeletingCard] = useState(false);
-
   const handleUpdateProfile = (profile) => {
-    setIsUpdatingProfile(true);
+    setIsLoading(true);
     api.editUserInfo(profile)
       .then(updatedUser => {
         setCurrentUser(updatedUser);
         setIsEditProfilePopupOpen(false);
       })
       .catch(error => console.log(error))
-      .finally(() => setIsUpdatingProfile(false));
+      .finally(() => setIsLoading(false));
   };
 
   const handleUpdateAvatar = (avatar) => {
-    setIsUpdatingAvatar(true);
+    setIsLoading(true);
     api.editUserAvatar(avatar)
       .then(updatedUser => {
         setCurrentUser(updatedUser);
         setIsEditAvatarPopupOpen(false);
       })
       .catch(error => console.log(error))
-      .finally(() => setIsUpdatingAvatar(false));
+      .finally(() => setIsLoading(false));
   };
 
   const handleAddPlace = (card) => {
-    setIsAddingPlace(true);
+    setIsLoading(true);
     api.addCard(card)
       .then(addedCard => {
         setCards([addedCard, ...cards]);
         setIsAddPlacePopupOpen(false);
       })
       .catch(error => console.log(error))
-      .finally(() => setIsAddingPlace(false));
+      .finally(() => setIsLoading(false));
   };
 
   const handleConfirmClick = (card) => {
-    setIsDeletingCard(true);
+    setIsLoading(true);
     const isOwn = card.owner._id === currentUser._id;
     if (isOwn) {
       api.deleteCard(card._id)
@@ -121,7 +113,7 @@ export const App = () => {
           setTrashedCard(null);
         })
         .catch(error => console.log(error))
-        .finally(() => setIsDeletingCard(false));
+        .finally(() => setIsLoading(false));
     }
   };
 
@@ -141,25 +133,27 @@ export const App = () => {
           <Footer />
           <PopupConfirm
             card={trashedCard}
-            isLoading={isDeletingCard}
+            isLoading={isLoading}
             onClose={handleClosePopups}
             onConfirm={handleConfirmClick} />
           <PopupEditAvatar
             isOpen={isEditAvatarPopupOpen}
-            isLoading={isUpdatingAvatar}
+            isLoading={isLoading}
             onClose={handleClosePopups}
             onUpdateAvatar={handleUpdateAvatar} />
           <PopupEditProfile
             isOpen={isEditProfilePopupOpen}
-            isLoading={isUpdatingProfile}
+            isLoading={isLoading}
             onClose={handleClosePopups}
             onUpdateUser={handleUpdateProfile} />
           <PopupAddPlace
             isOpen={isAddPlacePopupOpen}
-            isLoading={isAddingPlace}
+            isLoading={isLoading}
             onClose={handleClosePopups}
             onAddPlace={handleAddPlace} />
-          <ImagePopup card={selectedCard} onClose={handleClosePopups} />
+          <ImagePopup
+            card={selectedCard}
+            onClose={handleClosePopups} />
         </CurrentUserContext.Provider>
       </div>
     </div>

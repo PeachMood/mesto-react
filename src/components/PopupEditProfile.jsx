@@ -4,18 +4,16 @@ import { PopupWithForm } from './PopupWithForm';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
 export const PopupEditProfile = ({ isOpen, isLoading, onClose, onUpdateUser }) => {
-  // Глобальный контекст
   const currentUser = useContext(CurrentUserContext);
+  const [name, setName] = useState(null);
+  const [about, setAbout] = useState(null);
+
   useEffect(() => {
     if (!isOpen) {
       setName(currentUser?.name);
       setAbout(currentUser?.about);
     }
   }, [isOpen, currentUser]);
-
-  // Управляемые компоненты формы
-  const [name, setName] = useState(null);
-  const [about, setAbout] = useState(null);
 
   const handleNameChange = (event) => {
     setName(event.target.value);

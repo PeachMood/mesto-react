@@ -3,14 +3,11 @@ import React, { useContext } from 'react';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
 export const Card = ({ card, onCardClick, onCardLike, onCardDelete }) => {
-  // Глобальный контекст
   const currentUser = useContext(CurrentUserContext);
 
-  // Свойства карточки
   const isOwn = card.owner._id === currentUser._id;
   const isLiked = card.likes.some(user => user._id === currentUser._id);
 
-  // Стили кнопки лайка
   const buttonLikeClassName = `card__like ${isLiked && 'card__like_active'} button`;
 
   const handleCardClick = () => {

@@ -3,9 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { PopupWithForm } from './PopupWithForm';
 
 export const PopupAddPlace = ({ isOpen, isLoading, onClose, onAddPlace }) => {
-  // Управляемые компоненты формы
   const [name, setName] = useState(null);
   const [link, setLink] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setName(null);
+      setLink(null);
+    }
+  }, [isOpen]);
 
   const handleNameChange = (event) => {
     setName(event.target.value);
@@ -18,13 +24,6 @@ export const PopupAddPlace = ({ isOpen, isLoading, onClose, onAddPlace }) => {
   const handleSubmit = () => {
     onAddPlace({ name, link });
   };
-
-  useEffect(() => {
-    if (!isOpen) {
-      setName(null);
-      setLink(null);
-    }
-  }, [isOpen]);
 
   return (
     <PopupWithForm
